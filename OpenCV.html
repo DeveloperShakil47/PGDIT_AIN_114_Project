@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced AI Face Liveness Detection System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7"></script>
+    <script src="/site.js"></script>
+    <link rel="stylesheet" href="#styles">
+    <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">🔐</div>
+                    <div>
+                        <h1>SecureVision AI</h1>
+                        <p class="subtitle">Advanced Biometric Liveness Detection System</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalVerifications">0</span>
+                        <span class="stat-label">Verifications</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="authorizedCount">0</span>
+                        <span class="stat-label">Authorized</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel - Video Feed -->
+            <div class="left-panel">
+                <div class="video-card">
+                    <div class="card-header">
+                        <h3>Live Camera Feed</h3>
+                        <div class="ai-indicator">
+                            <span class="pulse-dot"></span>
+                            <span>AI Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="video-container">
+                        <video id="video" autoplay playsinline muted></video>
+                        <canvas id="canvas"></canvas>
+                        
+                        <!-- Overlay Prompts -->
+                        <div id="overlay" class="overlay">
+                            <div class="prompt-box-top">
+                                <div class="prompt-icon">🤖</div>
+                                <h2 id="promptTitle">Initializing AI...</h2>
+                                <p id="promptText">Please wait while we load the detection models</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Badge -->
+                        <div id="statusBadge" class="status-badge">
+                            <span class="badge-icon">●</span>
+                            <span id="badgeText">Idle</span>
+                        </div>
+
+                        <!-- Detection Overlay -->
+                        <div id="detectionInfo" class="detection-overlay">
+                            <div class="detection-metric">
+                                <span class="metric-label">Face Quality:</span>
+                                <span class="metric-value" id="faceQuality">--</span>
+                            </div>
+                            <div class="detection-metric">
+                                <span class="metric-label">Liveness Score:</span>
+                                <span class="metric-value" id="livenessScore">--</span>
+                            </div>
+                            <div class="detection-metric">
+                                <span class="metric-label">Anti-Spoof:</span>
+                                <span class="metric-value" id="spoofScore">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="controls">
+                        <button id="startBtn" class="btn btn-primary" onclick="startContinuousMonitoring()">
+                            <span class="btn-icon">▶</span>
+                            Start Continuous Monitoring
+                        </button>
+                        <button id="stopBtn" class="btn btn-danger" onclick="stopSystem()" style="display: none;">
+                            <span class="btn-icon">⬛</span>
+                            Stop Monitoring
+                        </button>
+                    </div>
+
+                    <!-- Message Box -->
+                    <div id="messageBox" class="message-box"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Information -->
+            <div class="right-panel">
+                <!-- Verification Steps -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3>📋 Verification Pipeline</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul id="stepList" class="step-list">
+                            <li class="step-item step-pending" data-step="0">
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <span class="step-title">Human Face Detection</span>
+                                    <span class="step-desc">AI verifies human presence</span>
+                                </div>
+                                <span class="step-status">⏳</span>
+                            </li>
+                            <li class="step-item step-pending" data-step="1">
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <span class="step-title">Anti-Spoofing Check</span>
+                                    <span class="step-desc">Detects photos/videos/masks</span>
+                                </div>
+                                <span class="step-status">⏳</span>
+                            </li>
+                            <li class="step-item step-pending" data-step="2">
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <span class="step-title">3D Movement Analysis</span>
+                                    <span class="step-desc">Head rotation verification</span>
+                                </div>
+                                <span class="step-status">⏳</span>
+                            </li>
+                            <li class="step-item step-pending" data-step="3">
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <span class="step-title">Biometric Capture</span>
+                                    <span class="step-desc">High-quality face snapshot</span>
+                                </div>
+                                <span class="step-status">⏳</span>
+                            </li>
+                            <li class="step-item step-pending" data-step="4">
+                                <span class="step-number">5</span>
+                                <div class="step-content">
+                                    <span class="step-title">Admin Approval</span>
+                                    <span class="step-desc">Manual verification required</span>
+                                </div>
+                                <span class="step-status">⏳</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Admin Panel -->
+                <div id="adminPanel" class="info-card admin-panel" style="display: none;">
+                    <div class="card-header">
+                        <h3>🔐 Administrator Review</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="pendingApprovals"></div>
+                    </div>
+                </div>
+
+                <!-- Authorized Users -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3>✅ Authorized Personnel</h3>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="badge" id="userCountBadge">0</span>
+                            <button class="btn-clear" onclick="clearAuthorizedUsers()" title="Clear all authorized users">Clear All</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="authorizedUsers" class="authorized-grid">
+                            <div class="empty-state">
+                                <div class="empty-icon">👥</div>
+                                <p>No authorized users yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Log -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3>📊 Activity Log</h3>
+                        <button class="btn-clear" onclick="clearLog()">Clear</button>
+                    </div>
+                    <div class="card-body">
+                        <div id="systemLog" class="system-log">
+                            <div class="log-entry log-info">
+                                <span class="log-time">[--:--:--]</span>
+                                <span class="log-message">System initialized and ready</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
